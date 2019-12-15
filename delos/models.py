@@ -70,3 +70,59 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_admin
+
+
+class Member(models.Model):
+    group_pk = models.ForeignKey('Group', on_delete=models.CASCADE)
+    member = models.ForeignKey('User', on_delete=models.CASCADE)
+    authority = models.BooleanField()
+
+    def __str__(self):
+        return self.member
+
+
+class Groupschedule(models.Model):
+    group_pk = models.ForeignKey('Group', on_delete=models.CASCADE)
+    date = models.DateTimeField()
+    description = models.TextField()
+    author = models.ForeignKey('User', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.group_pk
+
+
+class Timeschedule(models.Model):
+    owner = models.ForeignKey('User', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    location = models.CharField(max_length=20)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self):
+        return self.title
+
+
+class Group(models.Model):
+    group_name = models.CharField(max_length=255)
+    description = models.TextField()
+    generated_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.group_name
+
+
+class Survey(models.Model):
+    GENDER_CHOICES = (
+        ('M', '남자'),
+        ('F', '여자'),
+    )
+    author = models.ForeignKey('User', on_delete=models.CASCADE)
+    link = models.TextField()
+    target_gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
+    # target_age 나이대 저장 방법 이슈
+    used_coin = models.IntegerField(default=0)
+    deadline = models.DateTimeField()
+    generated_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.author
