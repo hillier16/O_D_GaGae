@@ -3,7 +3,12 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
 from django.db import models
+from django.utils import timezone
 
+GENDER_CHOICES = (
+        ('M', '남자'),
+        ('F', '여자'),
+    )
 
 class UserManager(BaseUserManager):
     def create_user(self, email, name, password=None, **extra_fields):
@@ -41,12 +46,9 @@ class User(AbstractBaseUser):
         max_length=20,
         null=False,
     )
-    GENDER_CHOICES = (
-        ('M', '남자'),
-        ('F', '여자'),
-    )
     sex = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
     age = models.IntegerField()
+    phone_number = models.CharField(max_length=15, blank=True)
     department = models.CharField(max_length=20)
     survey_coin = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
@@ -78,7 +80,7 @@ class Member(models.Model):
     authority = models.BooleanField()
 
     def __str__(self):
-        return self.member
+        return str(self.member)
 
 
 class Groupschedule(models.Model):
@@ -88,15 +90,25 @@ class Groupschedule(models.Model):
     author = models.ForeignKey('User', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.group_pk
+        return str(self.group_pk)
 
 
 class Timeschedule(models.Model):
+    DAY_CHOICES = (
+        ('1', '월요일'),
+        ('2', '화요일'),
+        ('3', '수요일'),
+        ('4', '목요일'),
+        ('5', '금요일'),
+        ('6', '토요일'),
+        ('7', '일요일'),
+    )
     owner = models.ForeignKey('User', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     location = models.CharField(max_length=20)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    day = models.CharField(max_length=1, default='0', choices=DAY_CHOICES)
+    start_time = models.TimeField(default=None)
+    end_time = models.TimeField(default=timezone.now)
 
     def __str__(self):
         return self.title
@@ -112,10 +124,6 @@ class Group(models.Model):
 
 
 class Survey(models.Model):
-    GENDER_CHOICES = (
-        ('M', '남자'),
-        ('F', '여자'),
-    )
     author = models.ForeignKey('User', on_delete=models.CASCADE)
     link = models.TextField()
     target_gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
@@ -125,4 +133,4 @@ class Survey(models.Model):
     generated_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.author
+        return str(self.author)
