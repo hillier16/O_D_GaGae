@@ -26,4 +26,4 @@ db.sqlite3-journal
 media
 
 # For kimhanju
-runserver.txt
+command_list.txt
