@@ -2,4 +2,4 @@
 - 주제: 팀플 관리 
 
 - 실행 방법: requirements 설치 후 command창에 python manage.py runserver 입력
-- 127.0.0.1:8000 
+- 127.0.0.1:8000 접속
