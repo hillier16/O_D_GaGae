@@ -185,7 +185,7 @@ class Survey(models.Model):
     edited_date = models.DateTimeField()
     generated_date = models.DateTimeField(auto_now_add=True)
     answer_num = models.IntegerField(default=0)
-    is_active = models.BooleanField(defualt=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.author)
