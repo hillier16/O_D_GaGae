@@ -17,7 +17,7 @@ class UserManager(BaseUserManager):
             raise ValueError('Users must have an email address')
 
         user = self.model(
-            nickname=self.normalize_email(email),
+            email=self.normalize_email(email),
             name=name,
             **extra_fields
         )
@@ -43,7 +43,7 @@ class User(AbstractBaseUser):
         max_length=255,
         unique=True,
     )
-    nickname = models.CharField(max_length=20, null=False,)
+    name = models.CharField(max_length=20, null=False,)
     gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
     date_of_birth = models.DateTimeField()
     survey_coin = models.IntegerField(default=0)
@@ -54,7 +54,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'    # 유니크 식별자로 사용
-    REQUIRED_FIELDS = ['nickname', 'date_of_birth']  # createsuperuser 커맨드로 유저를 생성할 때 나타날 필드 이름 목록
+    REQUIRED_FIELDS = ['name', 'date_of_birth']  # createsuperuser 커맨드로 유저를 생성할 때 나타날 필드 이름 목록
 
     def __str__(self):
         return self.email
