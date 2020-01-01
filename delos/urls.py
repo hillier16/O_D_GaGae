@@ -4,6 +4,17 @@ from . import views
 
 router = DefaultRouter()
 router.register('user', views.UserViewSet)
+router.register('personalSchedule', views.PersonalScheduleViewSet)
+router.register('timeTable', views.TimeTableViewSet)
+router.register('alarm', views.AlarmViewSet)
+router.register('group', views.GroupViewSet)
+router.register('groupMember', views.GroupMemberViewSet)
+router.register('groupSchedule', views.GroupScheduleViewSet)
+router.register('groupNotice', views.GroupNoticeViewSet)
+router.register('groupBoard', views.GroupBoardViewSet)
+router.register('survey', views.SurveyViewSet)
+router.register('surveyQuestion', views.SurveyQuestionViewSet)
+router.register('surveyAnswer', views.SurveyAnswerViewSet)
 
 urlpatterns = [
     path('', views.home, name='home'),
