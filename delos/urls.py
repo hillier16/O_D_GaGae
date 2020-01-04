@@ -19,4 +19,8 @@ router.register('surveyAnswer', views.SurveyAnswerViewSet)
 urlpatterns = [
     path('', views.home, name='home'),
     path('api/', include(router.urls)),
+    path('oauth/', views.oauth, name='oauth'),
+    path('loginKakao/', views.login, name='detail'),
+    path('unlink/', views.unlink, name='unlink'),
+    path('withdraw/', views.withdraw, name='withdraw'),
 ]

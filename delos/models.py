@@ -10,14 +10,19 @@ GENDER_CHOICES = (
         ('F', '여자'),
     )
 
+AGE_CHOICES = (
+    ('1', '10대'),
+    ('2', '20대'),
+    ('3', '30대'),
+    ('4', '40대'),
+    ('5', '50대')
+)
+
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, name, password=None, **extra_fields):
-        if not email:
-            raise ValueError('Users must have an email address')
-
+    def create_user(self, uid, name, password=None, **extra_fields):
         user = self.model(
-            email=self.normalize_email(email),
+            uid=uid,
             name=name,
             **extra_fields
         )
@@ -25,9 +30,9 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name, password, **extra_fields):
+    def create_superuser(self, uid, name, password, **extra_fields):
         user = self.create_user(
-            email,
+            uid,
             name,
             password=password,
             **extra_fields
@@ -38,26 +43,22 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    email = models.EmailField(
-        verbose_name='email',
-        max_length=255,
-        unique=True,
-    )
+    uid = models.CharField(unique=True, max_length=100)
     name = models.CharField(max_length=20, null=False,)
     gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
-    date_of_birth = models.DateTimeField()
+    age_range = models.CharField(max_length=1, blank=True, choices=AGE_CHOICES)
     survey_coin = models.IntegerField(default=0)
-    is_active = models.BooleanField(default=True) # True: 로그인, False: 로그아웃
-    is_admin = models.BooleanField(default=False) # True: 관리자, False: 사용자
+    is_active = models.BooleanField(default=True)   # True: 로그인, False: 로그아웃
+    is_admin = models.BooleanField(default=False)   # True: 관리자, False: 사용자
     joined_date = models.DateTimeField(default=timezone.now)
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'    # 유니크 식별자로 사용
-    REQUIRED_FIELDS = ['name', 'date_of_birth']  # createsuperuser 커맨드로 유저를 생성할 때 나타날 필드 이름 목록
+    USERNAME_FIELD = 'uid'    # 유니크 식별자로 사용
+    REQUIRED_FIELDS = ['name']  # createsuperuser 커맨드로 유저를 생성할 때 나타날 필드 이름 목록
 
     def __str__(self):
-        return self.email
+        return self.uid
 
     def has_perm(self, perm, obj=None):
         return True
@@ -166,13 +167,7 @@ class GroupBoard(models.Model):
 
 
 class Survey(models.Model):
-    AGE_CHOICES = (
-        ('1', '10대'),
-        ('2', '20대'),
-        ('3', '30대'),
-        ('4', '40대'),
-        ('5', '50대')
-    )
+
     target_age_start = models.CharField(max_length=1, default='1', choices=AGE_CHOICES)
     target_age_end = models.CharField(max_length=1, default='5', choices=AGE_CHOICES)
     author = models.ForeignKey('User', on_delete=models.CASCADE)

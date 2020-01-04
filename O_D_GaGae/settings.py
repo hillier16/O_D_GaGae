@@ -31,16 +31,17 @@ def get_secret(setting, secrets=secrets):
     try:
         return secrets[setting]
     except KeyError:
-        error_msg="Set the {0} environment variable".format(setting)
+        error_msg = "Set the {0} environment variable".format(setting)
         raise ImproperlyConfigured(error_msg)
 
 
 SECRET_KEY = get_secret("DJANGO_SECRET_KEY")
-
+KAKAO_CLIENT_ID = get_secret("CLIENT_ID")
+HOST_IP = get_secret("HOST_IP")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
