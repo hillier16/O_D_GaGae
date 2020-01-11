@@ -43,7 +43,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    uid = models.CharField(unique=True, max_length=100)
+    uid = models.CharField(primary_key=True, unique=True, max_length=100)
     name = models.CharField(max_length=20, null=False,)
     gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
     age_range = models.CharField(max_length=1, blank=True, choices=AGE_CHOICES)
@@ -104,12 +104,12 @@ class TimeTable(models.Model):
 
 class Alarm(models.Model):
     target = models.ForeignKey('User', on_delete=models.CASCADE)
-    group_pk = models.ForeignKey('Group', on_delete=models.CASCADE)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE)
     description = models.TextField()
     generated_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.group_pk)
+        return str(self.group)
 
 
 class Group(models.Model):
@@ -117,14 +117,14 @@ class Group(models.Model):
     description = models.TextField()
     generated_date = models.DateTimeField(default=timezone.now)
     code = models.CharField(max_length=10) # random하게 생성되어야 함(알파벳, 숫자 조합)
-    member_num = models.IntegerField(default=0)
+    member_num = models.IntegerField(default=1)
 
     def __str__(self):
         return self.name
 
 
 class GroupMember(models.Model):
-    group_pk = models.ForeignKey('Group', on_delete=models.CASCADE)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE)
     member = models.ForeignKey('User', on_delete=models.CASCADE)
     joined_date = models.DateTimeField(default=timezone.now)
     is_alarm_on = models.BooleanField(default=True)
@@ -134,18 +134,18 @@ class GroupMember(models.Model):
 
 
 class GroupSchedule(models.Model):
-    group_pk = models.ForeignKey('Group', on_delete=models.CASCADE)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE)
     description = models.TextField()
     author = models.ForeignKey('User', on_delete=models.CASCADE)
     start_time = models.DateTimeField(default=timezone.now)
     end_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.group_pk)
+        return str(self.group)
 
 
 class GroupNotice(models.Model):
-    group_pk = models.ForeignKey('Group', on_delete=models.CASCADE)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE)
     description = models.TextField()
     generated_date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey('User', on_delete=models.CASCADE)
@@ -155,7 +155,7 @@ class GroupNotice(models.Model):
 
 
 class GroupBoard(models.Model):
-    group_pk = models.ForeignKey('Group', on_delete=models.CASCADE)
+    group = models.ForeignKey('Group', on_delete=models.CASCADE)
     description = models.TextField()
     generated_date = models.DateTimeField(default=timezone.now)
     due_date = models.DateTimeField()
@@ -183,7 +183,7 @@ class Survey(models.Model):
 
 
 class SurveyQuestion(models.Model):
-    survey_pk = models.ForeignKey('Survey', on_delete=models.CASCADE)
+    survey = models.ForeignKey('Survey', on_delete=models.CASCADE)
     index = models.IntegerField()
     content = models.TextField()
     question_type = models.IntegerField(default=0) # 0: 객관식, 1: 주관식
@@ -194,7 +194,7 @@ class SurveyQuestion(models.Model):
 
 
 class SurveyAnswer(models.Model):
-    survey_question_pk = models.ForeignKey('SurveyQuestion', on_delete=models.CASCADE)
+    survey_question = models.ForeignKey('SurveyQuestion', on_delete=models.CASCADE)
     author = models.ForeignKey('User', on_delete=models.CASCADE)
     content = models.TextField()
 

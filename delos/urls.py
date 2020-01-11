@@ -23,4 +23,6 @@ urlpatterns = [
     path('loginKakao/', views.login, name='detail'),
     path('unlink/', views.unlink, name='unlink'),
     path('withdraw/', views.withdraw, name='withdraw'),
+
+    path('getUserGroup/<str:uid>/', views.getUserGroup.as_view())
 ]
