@@ -26,6 +26,6 @@ urlpatterns = [
     path('unlink/', views.unlink, name='unlink'),
     path('withdraw/', views.withdraw, name='withdraw'),
 
-    path('api/getUserGroup/', apis.getUserGroup.as_view()),
-    path('api/createGroup/', apis.createGroup.as_view())
+    path('api/getUserGroup', apis.getUserGroup.as_view()),
+    path('api/createGroup', apis.createGroup.as_view())
 ]

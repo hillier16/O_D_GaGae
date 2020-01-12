@@ -35,19 +35,10 @@ class createGroup(APIView):
 
     def post(self, request, format=None):
         uid = get_uid_from_jwt(request)
-        serializer = GroupSerializer(data=request.data)
-        # print(request.data.get('name'))
-        # new_group = Group(name=json.loads(request.body.decode("utf-8"))['name'], description=json.loads(request.body.decode("utf-8"))['description'], code="ABC")
-        # new_group.save()
-        return Response(status=status.HTTP_201_CREATED)
-
-    def get(self, request):
-        name = "new group"
-        description = "this is new group"
-        uid = get_uid_from_jwt(request)
         code = make_random_group_code()
         while(self.is_code_duplicate(code)):
             code = make_random_group_code()
-        new_group = Group(name=name, description=description, code=code)
+        data = json.loads(request.body.decode('utf-8'))
+        new_group = Group(name=data['name'], description=data['description'], code=code)
         new_group.save()
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(data, status=status.HTTP_201_CREATED)
