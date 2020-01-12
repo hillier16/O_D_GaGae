@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from . import views
+from . import apis
 
 router = DefaultRouter()
 router.register('user', views.UserViewSet)
@@ -24,5 +26,6 @@ urlpatterns = [
     path('unlink/', views.unlink, name='unlink'),
     path('withdraw/', views.withdraw, name='withdraw'),
 
-    path('getUserGroup/<str:uid>/', views.getUserGroup.as_view())
+    path('api/getUserGroup/', apis.getUserGroup.as_view()),
+    path('api/createGroup/', apis.createGroup.as_view())
 ]
