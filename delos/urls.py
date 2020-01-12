@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_jwt.views import obtain_jwt_token
 from . import views
+from . import accounts
 
 router = DefaultRouter()
 router.register('user', views.UserViewSet)
@@ -19,10 +21,11 @@ router.register('surveyAnswer', views.SurveyAnswerViewSet)
 urlpatterns = [
     path('', views.home, name='home'),
     path('api/', include(router.urls)),
-    path('oauth/', views.oauth, name='oauth'),
-    path('loginKakao/', views.login, name='detail'),
-    path('unlink/', views.unlink, name='unlink'),
-    path('withdraw/', views.withdraw, name='withdraw'),
+    path('api/oauth/', accounts.oauth, name='oauth'),
+    path('api/loginKakao/', accounts.login, name='detail'),
+    path('api/unlink/', accounts.unlink, name='unlink'),
+    path('api/withdraw/', accounts.withdraw, name='withdraw'),
+    path('api/token/', obtain_jwt_token),
 
-    path('getUserGroup/<str:uid>/', views.getUserGroup.as_view())
+    path('api/getUserGroup/<str:uid>/', views.getUserGroup.as_view()),
 ]
