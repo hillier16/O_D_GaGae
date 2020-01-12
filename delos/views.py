@@ -1,9 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from django.conf import settings
-from django.http import Http404
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 import requests
 import json
 
@@ -74,18 +72,3 @@ class SurveyQuestionViewSet(viewsets.ModelViewSet):
 class SurveyAnswerViewSet(viewsets.ModelViewSet):
     queryset = SurveyAnswer.objects.all()
     serializer_class = SurveyAnswerSerializer
-
-
-class getUserGroup(APIView):
-    def get_object(self, uid):
-        try:
-            group_list = GroupMember.objects.filter(member=uid).values('group')
-            group = Group.objects.filter(pk__in = group_list).values('id', 'name', 'description', 'code', 'member_num')
-            return group
-        except (GroupMember.DoesNotExist, Group.DoesNotExist):
-            raise Http404
-
-    def get(self, request, uid):
-        groups = self.get_object(uid)
-        serializer = GroupSerializer(groups, many=True)
-        return Response(serializer.data)

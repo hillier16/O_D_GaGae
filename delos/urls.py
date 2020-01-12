@@ -1,7 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_jwt.views import obtain_jwt_token
+
+
 from . import views
+from . import apis
+from rest_framework_jwt.views import obtain_jwt_token
 from . import accounts
 
 router = DefaultRouter()
@@ -26,6 +29,7 @@ urlpatterns = [
     path('api/unlink/', accounts.unlink, name='unlink'),
     path('api/withdraw/', accounts.withdraw, name='withdraw'),
     path('api/token/', obtain_jwt_token),
-
-    path('api/getUserGroup/<str:uid>/', views.getUserGroup.as_view()),
+  
+    path('api/getUserGroup', apis.getUserGroup.as_view()),
+    path('api/createGroup', apis.createGroup.as_view())
 ]
