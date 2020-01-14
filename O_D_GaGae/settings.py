@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'delos',
     'rest_framework',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
