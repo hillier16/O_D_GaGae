@@ -27,5 +27,7 @@ urlpatterns = [
     path('withdraw/', views.withdraw, name='withdraw'),
 
     path('api/getUserGroup', apis.getUserGroup.as_view()),
-    path('api/createGroup', apis.createGroup.as_view())
+    path('api/createGroup', apis.createGroup.as_view()),
+    path('api/joinGroup', apis.joinGroup.as_view()),
+    path('api/deleteGroup', apis.deleteGroup.as_view())
 ]

@@ -41,4 +41,29 @@ class createGroup(APIView):
         data = json.loads(request.body.decode('utf-8'))
         new_group = Group(name=data['name'], description=data['description'], code=code)
         new_group.save()
-        return Response(data, status=status.HTTP_201_CREATED)
+        GroupMember(group=new_group, member=User.objects.get(pk=uid)).save()
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class joinGroup(APIView):
+    def post(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        group = Group.objects.get(code=data['code'])
+        group.member_num += 1
+        group.save()
+        GroupMember(group=group, member=User.objects.get(pk=uid)).save()
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class deleteGroup(APIView):
+    def get(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        group = Group.objects.get(pk=request.GET.get('group_id'))
+        GroupMember.objects.get(group=group, member=User.objects.get(pk=uid)).delete()
+        if group.member_num == 1:
+            group.delete()
+        else:
+            group.member_num -= 1
+            group.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)

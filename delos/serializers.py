@@ -72,5 +72,3 @@ class SurveyAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyAnswer
         fields = '__all__'
-
-
