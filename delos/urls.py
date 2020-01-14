@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 from . import apis
-from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_jwt.views import obtain_jwt_token, verify_jwt_token, refresh_jwt_token
 from . import accounts
 
 router = DefaultRouter()
@@ -28,7 +28,9 @@ urlpatterns = [
     path('api/loginKakao/', accounts.login, name='detail'),
     path('api/unlink/', accounts.unlink, name='unlink'),
     path('api/withdraw/', accounts.withdraw, name='withdraw'),
-    path('api/token/', obtain_jwt_token),
+    path('api/token/', obtain_jwt_token, name='obtain_token'),
+    path('api/token/verify/', verify_jwt_token),
+    path('api/token/refresh/', refresh_jwt_token),
   
     path('api/getUserGroup', apis.getUserGroup.as_view()),
     path('api/createGroup', apis.createGroup.as_view())

@@ -36,6 +36,7 @@ def get_secret(setting, secrets=secrets):
         raise ImproperlyConfigured(error_msg)
 
 
+SECRET_PASSWORD = get_secret("SECRET_PASSWORD")
 SECRET_KEY = get_secret("DJANGO_SECRET_KEY")
 KAKAO_CLIENT_ID = get_secret("CLIENT_ID")
 HOST_IP = get_secret("HOST_IP")
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'delos',
     'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -123,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-'''
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -133,12 +135,18 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
 }
-'''
+
+REST_USER_JWT = True
 
 JWT_AUTH = {
     'JWT_SECRET_KEY': get_secret("JWT_SECRET_KEY"),
     'JWT_ALGORITHM': 'HS256',
+    'JWT_VERIFY': True,
     'JWT_ALLOW_REFRESH': True,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=28),

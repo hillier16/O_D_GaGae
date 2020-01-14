@@ -4,6 +4,9 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 from django.utils import timezone
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+from django.contrib.auth.hashers import make_password, is_password_usable
 
 GENDER_CHOICES = (
         ('M', '남자'),
@@ -46,7 +49,7 @@ class User(AbstractBaseUser):
     uid = models.CharField(primary_key=True, unique=True, max_length=100)
     name = models.CharField(max_length=20, null=False,)
     gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
-    age_range = models.CharField(max_length=1, blank=True, choices=AGE_CHOICES)
+    age = models.IntegerField(default=0, blank=True)
     survey_coin = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)   # True: 로그인, False: 로그아웃
     is_admin = models.BooleanField(default=False)   # True: 관리자, False: 사용자
