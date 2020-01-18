@@ -1,15 +1,23 @@
 import string
 import random
-
-def get_uid_from_jwt(request):
-    uid = 'user1'
-
-    return uid
+from django.contrib.auth import get_user_model
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+User = get_user_model()
+from rest_framework_jwt.settings import api_settings
 
 
 string_pool = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ"
+
+
 def make_random_group_code():
     code = ""
     for _ in range(6):
         code += random.choice(string_pool)
     return code
+
+
+def get_uid_from_jwt(request):
+    auth = JSONWebTokenAuthentication()
+    jwt_value = auth.get_jwt_value(request)
+    payload = api_settings.JWT_DECODE_HANDLER(jwt_value)
+    return payload['user_id']

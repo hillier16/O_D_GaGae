@@ -1,14 +1,16 @@
-from django.conf import settings
-from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-import json
+from calendar import timegm
+from datetime import datetime
+from django.http import HttpResponse, JsonResponse
 import requests
-
+from rest_framework_jwt.settings import api_settings
+from django.contrib.auth.hashers import make_password
 from .models import *
 from .serializers import *
+from rest_framework.decorators import api_view, permission_classes, authentication_classes, renderer_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework.renderers import JSONRenderer
 
 
 headers = {}
@@ -16,7 +18,7 @@ headers = {}
 
 def login(request):
     client_id = settings.KAKAO_CLIENT_ID
-    redirect_uri = 'http://' + settings.HOST_IP + '/oauth'
+    redirect_uri = 'http://' + settings.HOST_IP + '/api/oauth'
 
     url = 'https://kauth.kakao.com/oauth/authorize?'
     url += 'client_id=' + client_id
@@ -30,9 +32,14 @@ def login(request):
     return redirect(url)
 
 
+'''
+@api_view(['GET'])
+@authentication_classes([JSONWebTokenAuthentication])
+'''
+
 def unlink(request):
     client_id = settings.KAKAO_CLIENT_ID
-    redirect_uri = 'http://' + settings.HOST_IP + '/withdraw'
+    redirect_uri = 'http://' + settings.HOST_IP + '/api/withdraw'
 
     url = 'https://kauth.kakao.com/oauth/authorize?'
     url += 'client_id=' + client_id
@@ -49,7 +56,7 @@ def unlink(request):
 def oauth(request):
     code = request.GET['code']
     client_id = settings.KAKAO_CLIENT_ID
-    redirect_uri = 'http://' + settings.HOST_IP + '/oauth'
+    redirect_uri = 'http://' + settings.HOST_IP + '/api/oauth'
 
     url = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code&"
     url += "client_id=" + client_id
@@ -78,9 +85,21 @@ def oauth(request):
 
     json_data = response.json()
     properties = json_data['properties']
-    user, flag = User.objects.get_or_create(uid=json_data['id'], name=properties['nickname'])
 
-    return render(request, 'delos/home.html', {})
+    user, flag = User.objects.get_or_create(uid=json_data['id'])
+    if flag:
+        user.name = properties['nickname'],
+        user.password = make_password(settings.SECRET_PASSWORD)
+        user.save()
+    token = obtain_jwt_token(user)
+    print(token)
+    userserial = UserSerializer(user)
+
+    response = HttpResponse(userserial)
+    response['token'] = token
+    response['Content-Type'] = 'application/json'
+    print("JWT token = " + token)
+    return response
 
 
 def withdraw(request):
@@ -108,4 +127,16 @@ def withdraw(request):
     headers = {'Authorization': "Bearer " + str(access_token)}
     response = requests.request("POST", url, headers=headers)
     print(response.text)
-    return render(request, 'delos/home.html', {})
+    user = User.objects.get(uid="1247257827")
+    user.delete()
+    return redirect('home')
+
+
+def obtain_jwt_token(user: User):
+    jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+    payload = api_settings.JWT_PAYLOAD_HANDLER(user)
+    if api_settings.JWT_ALLOW_REFRESH:
+        payload['orig_iat'] = timegm(
+            datetime.utcnow().utctimetuple()
+        )
+    return jwt_encode_handler(payload)
