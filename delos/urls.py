@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-
+from rest_framework_jwt.views import obtain_jwt_token
 
 from . import views
 from . import apis
@@ -33,5 +33,9 @@ urlpatterns = [
     path('api/token/refresh/', refresh_jwt_token),
   
     path('api/getUserGroup', apis.getUserGroup.as_view()),
-    path('api/createGroup', apis.createGroup.as_view())
+    path('api/createGroup', apis.createGroup.as_view()),
+    path('api/joinGroup', apis.joinGroup.as_view()),
+    path('api/deleteGroup', apis.deleteGroup.as_view()),
+    path('api/changeGroupAlarm', apis.changeGroupAlarm.as_view()),
+    path('api/getGroupMember', apis.getGroupMember.as_view()),
 ]
