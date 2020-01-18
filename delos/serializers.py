@@ -72,3 +72,28 @@ class SurveyAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyAnswer
         fields = '__all__'
+
+###########################################################################
+
+# getUserGroup API
+class GroupDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ('id', 'name', 'description', 'code', 'member_num')
+class getUserGroupSerializer(serializers.ModelSerializer):
+    group = GroupDetailSerializer()
+    class Meta:
+        model = GroupMember
+        fields = ('group', 'is_alarm_on')
+
+
+# getGroupMember API
+class UserNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('uid', 'name')
+class getGroupMemberSerializer(serializers.ModelSerializer):
+    member = UserNameSerializer()
+    class Meta:
+        model = GroupMember
+        fields = ('member', 'joined_date')

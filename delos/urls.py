@@ -32,5 +32,7 @@ urlpatterns = [
     path('api/getUserGroup', apis.getUserGroup.as_view()),
     path('api/createGroup', apis.createGroup.as_view()),
     path('api/joinGroup', apis.joinGroup.as_view()),
-    path('api/deleteGroup', apis.deleteGroup.as_view())
+    path('api/deleteGroup', apis.deleteGroup.as_view()),
+    path('api/changeGroupAlarm', apis.changeGroupAlarm.as_view()),
+    path('api/getGroupMember', apis.getGroupMember.as_view()),
 ]
