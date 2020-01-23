@@ -116,6 +116,7 @@ class Alarm(models.Model):
 
 
 class Group(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
     generated_date = models.DateTimeField(default=timezone.now)
@@ -123,7 +124,7 @@ class Group(models.Model):
     member_num = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.name
+        return str(self.id)
 
 
 class GroupMember(models.Model):
@@ -154,7 +155,7 @@ class GroupNotice(models.Model):
     author = models.ForeignKey('User', on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.author)
+        return str(self.id)
 
 
 class GroupBoard(models.Model):

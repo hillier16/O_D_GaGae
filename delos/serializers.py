@@ -75,25 +75,33 @@ class SurveyAnswerSerializer(serializers.ModelSerializer):
 
 ###########################################################################
 
-# getUserGroup API
+# groupView
 class GroupDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ('id', 'name', 'description', 'code', 'member_num')
-class getUserGroupSerializer(serializers.ModelSerializer):
+class groupViewSerializer(serializers.ModelSerializer):
     group = GroupDetailSerializer()
     class Meta:
         model = GroupMember
         fields = ('group', 'is_alarm_on')
 
 
-# getGroupMember API
+# groupMemberView
 class UserNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('uid', 'name')
-class getGroupMemberSerializer(serializers.ModelSerializer):
+class groupMemberViewSerializer(serializers.ModelSerializer):
     member = UserNameSerializer()
     class Meta:
         model = GroupMember
         fields = ('member', 'joined_date')
+
+
+# groupNoticeView
+class groupNoticeViewSerializer(serializers.ModelSerializer):
+    author = UserNameSerializer()
+    class Meta:
+        model = GroupNotice
+        fields = ('id', 'description', 'generated_date', 'author')
