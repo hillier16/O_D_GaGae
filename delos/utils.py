@@ -1,14 +1,9 @@
 import string
 import random
-from django.contrib.auth import get_user_model
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-User = get_user_model()
 from rest_framework_jwt.settings import api_settings
 
-
 string_pool = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ"
-
-
 def make_random_group_code():
     code = ""
     for _ in range(6):
