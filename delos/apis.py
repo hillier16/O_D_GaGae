@@ -46,7 +46,6 @@ class groupView(APIView):
 
 class groupMemberView(APIView):
     def get(self, request, format=None):
-        uid = get_uid_from_jwt(request)
         member = GroupMember.objects.filter(group=request.GET.get('group_id'))
         serializer = groupMemberViewSerializer(member, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -85,7 +84,6 @@ class groupMemberView(APIView):
 
 class latestGroupNoticeView(APIView):
     def get(self, request, format=None):
-        uid = get_uid_from_jwt(request)
         notice = GroupNotice.objects.filter(group=request.GET.get('group_id')).order_by('-generated_date')[:1]
         serializer = groupNoticeViewSerializer(notice, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -93,7 +91,6 @@ class latestGroupNoticeView(APIView):
 
 class groupNoticeView(APIView):
     def get(self, request, format=None):
-        uid = get_uid_from_jwt(request)
         notice = GroupNotice.objects.filter(group=request.GET.get('group_id')).order_by('-generated_date')
         serializer = groupNoticeViewSerializer(notice, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -121,4 +118,34 @@ class groupNoticeView(APIView):
         if str(notice.author) != str(uid):
             return Response(status=status.HTTP_403_FORBIDDEN)
         notice.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class groupScheduleView(APIView):
+    def get(self, request, format=None):
+        schedule = GroupSchedule.objects.filter(group=Group.objects.get(pk=request.GET.get('group_id')))
+        serializer = groupScheduleViewSerializer(schedule, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        new_schedule = GroupSchedule(group=Group.objects.get(pk=data['group_id']), start_time=data['start_time'], end_time=data['end_time'], description=data['description'], author=User.objects.get(pk=uid))
+        new_schedule.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        schedule = GroupSchedule.objects.get(pk=data['groupSchedule_id'])
+        schedule.start_time = data['start_time']
+        schedule.end_time = data['end_time']
+        schedule.description = data['description']
+        schedule.author = User.objects.get(pk=uid)
+        schedule.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+    def delete(self, request, format=None):
+        schedule = GroupSchedule.objects.get(pk=request.GET.get('groupSchedule_id'))
+        schedule.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

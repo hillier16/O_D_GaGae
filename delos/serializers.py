@@ -75,6 +75,12 @@ class SurveyAnswerSerializer(serializers.ModelSerializer):
 
 ###########################################################################
 
+class UserNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('uid', 'name')
+        
+
 # groupView
 class GroupDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,10 +94,6 @@ class groupViewSerializer(serializers.ModelSerializer):
 
 
 # groupMemberView
-class UserNameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('uid', 'name')
 class groupMemberViewSerializer(serializers.ModelSerializer):
     member = UserNameSerializer()
     class Meta:
@@ -105,3 +107,11 @@ class groupNoticeViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupNotice
         fields = ('id', 'description', 'generated_date', 'author')
+
+
+# groupScheduleView
+class groupScheduleViewSerializer(serializers.ModelSerializer):
+    author = UserNameSerializer()
+    class Meta:
+        model = GroupSchedule
+        fields = ('id', 'start_time', 'end_time', 'description', 'author')
