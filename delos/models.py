@@ -61,7 +61,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = ['name']  # createsuperuser 커맨드로 유저를 생성할 때 나타날 필드 이름 목록
 
     def __str__(self):
-        return self.uid
+        return str(self.pk)
 
     def has_perm(self, perm, obj=None):
         return True
@@ -81,7 +81,7 @@ class PersonalSchedule(models.Model):
     end_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.owner)
+        return str(self.pk)
 
 
 class TimeTable(models.Model):
@@ -102,7 +102,7 @@ class TimeTable(models.Model):
     end_time = models.TimeField(default=timezone.now)
 
     def __str__(self):
-        return self.title
+        return str(self.pk)
 
 
 class Alarm(models.Model):
@@ -112,7 +112,7 @@ class Alarm(models.Model):
     generated_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.group)
+        return str(self.pk)
 
 
 class Group(models.Model):
@@ -124,7 +124,7 @@ class Group(models.Model):
     member_num = models.IntegerField(default=1)
 
     def __str__(self):
-        return str(self.id)
+        return str(self.pk)
 
 
 class GroupMember(models.Model):
@@ -134,7 +134,7 @@ class GroupMember(models.Model):
     is_alarm_on = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.member)
+        return str(self.pk)
 
 
 class GroupSchedule(models.Model):
@@ -145,7 +145,7 @@ class GroupSchedule(models.Model):
     end_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.group)
+        return str(self.pk)
 
 
 class GroupNotice(models.Model):
@@ -155,7 +155,7 @@ class GroupNotice(models.Model):
     author = models.ForeignKey('User', on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.id)
+        return str(self.pk)
 
 
 class GroupBoard(models.Model):
@@ -167,11 +167,10 @@ class GroupBoard(models.Model):
     person_in_charge = models.ManyToManyField('User', blank=True, related_name='User_for_person_in_charge')
 
     def __str__(self):
-        return str(self.author)
+        return str(self.pk)
 
 
 class Survey(models.Model):
-
     target_age_start = models.CharField(max_length=1, default='1', choices=AGE_CHOICES)
     target_age_end = models.CharField(max_length=1, default='5', choices=AGE_CHOICES)
     author = models.ForeignKey('User', on_delete=models.CASCADE)
@@ -183,7 +182,7 @@ class Survey(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.author)
+        return str(self.pk)
 
 
 class SurveyQuestion(models.Model):
@@ -194,7 +193,7 @@ class SurveyQuestion(models.Model):
     choices = models.TextField() # 객관식 보기 리스트: 구분자(;)로 구분
 
     def __str__(self):
-        return self.content
+        return str(self.pk)
 
 
 class SurveyAnswer(models.Model):
@@ -203,4 +202,4 @@ class SurveyAnswer(models.Model):
     content = models.TextField()
 
     def __str__(self):
-        return str(self.author)
+        return str(self.pk)
