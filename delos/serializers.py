@@ -115,3 +115,10 @@ class groupScheduleViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupSchedule
         fields = ('id', 'start_time', 'end_time', 'description', 'author')
+
+
+# personalScheduleView
+class personalScheduleViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalSchedule
+        fields = ('id', 'start_time', 'end_time', 'description')
