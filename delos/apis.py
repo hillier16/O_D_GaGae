@@ -9,6 +9,7 @@ from .models import *
 from .serializers import *
 from .utils import *
 
+
 class groupView(APIView):
     def get_groups(self, uid):
         try:
@@ -147,5 +148,45 @@ class groupScheduleView(APIView):
 
     def delete(self, request, format=None):
         schedule = GroupSchedule.objects.get(pk=request.GET.get('groupSchedule_id'))
+        schedule.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class groupBoardView(APIView):
+    def get(self, request, format=None):
+        serializer = GroupBoardSerializer(GroupBoard.objects.filter(group=request.GET.get('group_id')), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        new_group_board = GroupBoard(group=Group.objects.get(pk=data['group_id']), description=data['description'], due_date=data['due_date'])
+        new_group_board.author = User.objects.get(pk=uid)
+        new_group_board.save()
+
+        p_list = data['person_in_charge']
+        for p in p_list:
+            new_group_board.person_in_charge.add(User.objects.get(uid=p))
+
+        return Response(status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        groupboard = GroupBoard.objects.get(pk=data['groupBoard_id'])
+        groupboard.description = data['description']
+        groupboard.due_date = data['due_date']
+        groupboard.author = User.objects.get(pk=uid)
+        groupboard.save()
+
+        groupboard.person_in_charge.clear()
+        p_list = data['person_in_charge']
+        for p in p_list:
+            groupboard.person_in_charge.add(User.objects.get(uid=p))
+
+        return Response(status=status.HTTP_201_CREATED)
+
+    def delete(self, request, format=None):
+        schedule = GroupBoard.objects.get(pk=request.GET.get('groupBoard_id'))
         schedule.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

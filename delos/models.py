@@ -167,7 +167,7 @@ class GroupBoard(models.Model):
     person_in_charge = models.ManyToManyField('User', blank=True, related_name='User_for_person_in_charge')
 
     def __str__(self):
-        return str(self.author)
+        return str(self.id)
 
 
 class Survey(models.Model):
