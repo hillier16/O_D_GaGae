@@ -36,6 +36,8 @@ urlpatterns = [
     path('api/latestGroupNotice', apis.latestGroupNoticeView.as_view()),
     path('api/groupNotice', apis.groupNoticeView.as_view()),
     path('api/groupSchedule', apis.groupScheduleView.as_view()),
+    path('api/groupBoard', apis.groupBoardView.as_view()),
+    path('api/timeTable', apis.timeTableView.as_view()),
     path('api/personalSchedule', apis.personalScheduleView.as_view()),
     path('api/survey', apis.surveyView.as_view()),
     path('api/mainSurvey', apis.mainSurveyView.as_view()),

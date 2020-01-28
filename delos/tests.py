@@ -2,9 +2,11 @@
 import requests
 
 # Create your tests here.
+
 url = 'http://localhost:8000/api/survey'
+
 headers = {'Content-Type': 'application/json',
-            'Authorization': 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiYXdlZWs0MyIsInVzZXJuYW1lIjoiYXdlZWs0MyIsImV4cCI6MTU4MDM4Mjg5MCwidWlkIjoiYXdlZWs0MyIsIm9yaWdfaWF0IjoxNTc5Nzc4MDkwfQ.JirwELDJmXby8kLwVgbpib_1YIEVTlyqvNV2DLrfzrk'}
+            'Authorization': 'JWT '}
 
 #   get
 def get():
@@ -12,6 +14,7 @@ def get():
     response = requests.get(url_param, headers=headers)
     print(response.text)
     assert response.status_code == 200
+
 
 #   post
 def post():
@@ -27,8 +30,9 @@ def post():
             ]
     }
     response = requests.post(url, json=data, headers=headers)
-    # print(response.text)
+    print(response.text)
     assert response.status_code == 201
+
 
 #   put
 def put():
@@ -37,6 +41,7 @@ def put():
     # print(response.text)
     assert response.status_code == 201
 
+
 #   delete
 def delete():
     url_param = url + '?personalSchedule_id=1'
@@ -44,5 +49,4 @@ def delete():
     # print(response.text)
     assert response.status_code == 204
 
-
-get()
+post()
