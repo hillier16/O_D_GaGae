@@ -2,12 +2,6 @@ from delos.models import *
 from rest_framework import serializers
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('uid', 'name', 'gender', 'age', 'survey_coin', 'joined_date')
-
-
 class PersonalScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalSchedule
@@ -75,6 +69,13 @@ class SurveyAnswerSerializer(serializers.ModelSerializer):
 
 ###########################################################################
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('uid', 'name', 'gender', 'age', 'survey_coin', 'joined_date')
+
+
 class UserNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -86,8 +87,11 @@ class GroupDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ('id', 'name', 'description', 'code', 'member_num')
+
+
 class groupViewSerializer(serializers.ModelSerializer):
     group = GroupDetailSerializer()
+
     class Meta:
         model = GroupMember
         fields = ('group', 'is_alarm_on')
@@ -96,6 +100,7 @@ class groupViewSerializer(serializers.ModelSerializer):
 # groupMemberView
 class groupMemberViewSerializer(serializers.ModelSerializer):
     member = UserNameSerializer()
+
     class Meta:
         model = GroupMember
         fields = ('member', 'joined_date')
@@ -104,6 +109,7 @@ class groupMemberViewSerializer(serializers.ModelSerializer):
 # groupNoticeView
 class groupNoticeViewSerializer(serializers.ModelSerializer):
     author = UserNameSerializer()
+
     class Meta:
         model = GroupNotice
         fields = ('id', 'description', 'generated_date', 'author')
@@ -112,6 +118,23 @@ class groupNoticeViewSerializer(serializers.ModelSerializer):
 # groupScheduleView
 class groupScheduleViewSerializer(serializers.ModelSerializer):
     author = UserNameSerializer()
+
     class Meta:
         model = GroupSchedule
         fields = ('id', 'start_time', 'end_time', 'description', 'author')
+
+
+# groupBoardView
+class GroupBoardViewSerializer(serializers.ModelSerializer):
+    person_in_charge = UserNameSerializer(many=True)
+
+    class Meta:
+        model = GroupBoard
+        fields = ('id', 'description', 'due_date', 'author', 'person_in_charge')
+
+
+# TimeTableView
+class TimeTableViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimeTable
+        fields = ('title', 'location', 'day', 'start_time', 'end_time')
