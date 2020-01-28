@@ -2,9 +2,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Case, When, IntegerField, F
 from django.http import Http404
 import json
+import datetime
 
 from .models import *
 from .serializers import *
@@ -257,3 +257,59 @@ class personalScheduleView(APIView):
         schedule = PersonalSchedule.objects.get(pk=request.GET.get('personalSchedule_id'))
         schedule.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class surveyView(APIView):
+    def get(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        user = User.objects.get(pk=uid)
+        user_age_range = int(user.age) // 10
+        survey = Survey.objects.filter(target_gender=user.gender, is_active=True,
+                                        target_age_start__lte=user_age_range, target_age_end__gte=user_age_range).order_by('-edited_date')
+        serializer = surveyViewSerializer(survey, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        new_survey = Survey(title=data['title'], author=User.objects.get(pk=uid), description=data['description'],
+                            target_gender=data['target_gender'], target_age_start=data['target_age_start'], target_age_end=data['target_age_end'])
+        new_survey.save()
+        for question in data['question']:
+            new_survey_question = SurveyQuestion(survey=new_survey, index=question['index'], content=question['content'], question_type=question['type'], choices=question['choices'])
+            new_survey_question.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        data = json.loads(request.body.decode('utf-8'))
+        survey = Survey.objects.get(pk=data['survey_id'])
+        survey.is_active = False
+        survey.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class mainSurveyView(APIView):
+    def get(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        user = User.objects.get(pk=uid)
+        user_age_range = int(user.age) // 10
+        survey = Survey.objects.filter(target_gender=user.gender, is_active=True,
+                                        target_age_start__lte=user_age_range, target_age_end__gte=user_age_range).order_by('-edited_date')[:8]
+        serializer = surveyViewSerializer(survey, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class mySurveyView(APIView):
+    def get(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        survey = Survey.objects.filter(author=User.objects.get(pk=uid)).order_by('-edited_date')
+        serializer = surveyViewSerializer(survey, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class updateSurveyView(APIView):
+    def put(self, request, format=None):
+        data = json.loads(request.body.decode('utf-8'))
+        survey = Survey.objects.get(pk=data['survey_id'])
+        survey.edited_date = datetime.datetime.now()
+        survey.save()
+        return Response(status=status.HTTP_201_CREATED)
