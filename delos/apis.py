@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Case, When, IntegerField, F
 from django.http import Http404
 import json
 
@@ -206,9 +207,9 @@ class timeTableView(APIView):
     def post(self, request, format=None):
         uid = get_uid_from_jwt(request)
         data = json.loads(request.body.decode('utf-8'))
-        new_time_table = TimeTable(owner=User.objects.get(pk=uid), title=data['title'], location=data['location'],
-                                   start_time=data['start_time'], end_time=data['end_time'], day=data['day'])
-        new_time_table.save()
+        new_timetable = TimeTable(owner=User.objects.get(pk=uid), title=data['title'], location=data['location'],
+                                  start_time=data['start_time'], end_time=data['end_time'], day=data['day'])
+        new_timetable.save();
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
@@ -225,4 +226,34 @@ class timeTableView(APIView):
     def delete(self, request, format=None):
         timetable = TimeTable.objects.get(pk=request.GET.get('timeTable_id'))
         timetable.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class personalScheduleView(APIView):
+    def get(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        schedule = PersonalSchedule.objects.filter(owner=User.objects.get(pk=uid))
+        serializer = personalScheduleViewSerializer(schedule, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        new_schedule = PersonalSchedule(owner=User.objects.get(pk=uid), start_time=data['start_time'],
+                                        end_time=data['end_time'], description=data['description'])
+        new_schedule.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        data = json.loads(request.body.decode('utf-8'))
+        schedule = PersonalSchedule.objects.get(pk=data['personalSchedule_id'])
+        schedule.start_time = data['start_time']
+        schedule.end_time = data['end_time']
+        schedule.description = data['description']
+        schedule.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+    def delete(self, request, format=None):
+        schedule = PersonalSchedule.objects.get(pk=request.GET.get('personalSchedule_id'))
+        schedule.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

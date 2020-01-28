@@ -138,3 +138,10 @@ class TimeTableViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeTable
         fields = ('title', 'location', 'day', 'start_time', 'end_time')
+
+
+# personalScheduleView
+class personalScheduleViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalSchedule
+        fields = ('id', 'start_time', 'end_time', 'description')

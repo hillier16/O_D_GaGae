@@ -9,7 +9,7 @@ headers = {'Content-Type': 'application/json',
 
 #   get
 def get():
-    url_param = url + '?group_id=1'
+    url_param = url + ''
     response = requests.get(url_param, headers=headers)
     print(response.text)
     assert response.status_code == 200
@@ -17,11 +17,11 @@ def get():
 
 #   post
 def post():
-    data = {'title': '시간표',
+    data = {'title': '제목',
             'location': '장소',
             'day': '월화',
-            'start_time': '22:08:47',
-            'end_time': '22:08:47'
+            'start_time': '11:11:11',
+            'end_time': '11:11:11'
             }
     response = requests.post(url, json=data, headers=headers)
     print(response.text)
@@ -30,13 +30,10 @@ def post():
 
 #   put
 def put():
-    data = {'timeTable_id': '7',
-            'title': '시간표11',
-            'location': '장소11',
-            'day': '화수',
-            'start_time': '22:08:48',
-            'end_time': '22:08:49'
-            }
+    data = {'personalSchedule_id': '1',
+            'start_time': '2020-11-11T11:11:11',
+            'end_time': '2020-12-10T10:10:10',
+            'description': 'edited'}
     response = requests.put(url, json=data, headers=headers)
     # print(response.text)
     assert response.status_code == 201
@@ -44,10 +41,10 @@ def put():
 
 #   delete
 def delete():
-    url_param = url + '?timeTable_id=6'
+    url_param = url + '?personalSchedule_id=1'
     response = requests.delete(url_param, headers=headers)
     # print(response.text)
     assert response.status_code == 204
 
 
-delete()
+post()
