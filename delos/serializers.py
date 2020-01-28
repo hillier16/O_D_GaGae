@@ -122,3 +122,10 @@ class personalScheduleViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalSchedule
         fields = ('id', 'start_time', 'end_time', 'description')
+
+
+# surveyView
+class surveyViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Survey
+        fields = ('id', 'title', 'description')

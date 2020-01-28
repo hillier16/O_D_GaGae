@@ -37,4 +37,8 @@ urlpatterns = [
     path('api/groupNotice', apis.groupNoticeView.as_view()),
     path('api/groupSchedule', apis.groupScheduleView.as_view()),
     path('api/personalSchedule', apis.personalScheduleView.as_view()),
+    path('api/survey', apis.surveyView.as_view()),
+    path('api/mainSurvey', apis.mainSurveyView.as_view()),
+    path('api/mySurvey', apis.mySurveyView.as_view()),
+    path('api/updateSurvey', apis.updateSurveyView.as_view()),
 ]

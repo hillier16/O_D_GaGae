@@ -13,14 +13,6 @@ GENDER_CHOICES = (
         ('F', '여자'),
     )
 
-AGE_CHOICES = (
-    ('1', '10대'),
-    ('2', '20대'),
-    ('3', '30대'),
-    ('4', '40대'),
-    ('5', '50대')
-)
-
 
 class UserManager(BaseUserManager):
     def create_user(self, uid, name, password=None, **extra_fields):
@@ -171,8 +163,17 @@ class GroupBoard(models.Model):
 
 
 class Survey(models.Model):
-    target_age_start = models.CharField(max_length=1, default='1', choices=AGE_CHOICES)
-    target_age_end = models.CharField(max_length=1, default='5', choices=AGE_CHOICES)
+    AGE_CHOICES = (
+        (1, '10대'),
+        (2, '20대'),
+        (3, '30대'),
+        (4, '40대'),
+        (5, '50대')
+    )
+    title = models.TextField()
+    description = models.TextField()
+    target_age_start = models.IntegerField(default=1, choices=AGE_CHOICES)
+    target_age_end = models.IntegerField(default=5, choices=AGE_CHOICES)
     author = models.ForeignKey('User', on_delete=models.CASCADE)
     target_gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
     used_coin = models.IntegerField(default=0)
