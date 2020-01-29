@@ -3,14 +3,14 @@ import requests
 
 # Create your tests here.
 
-url = 'http://localhost:8000/api/survey'
+url = 'http://localhost:8000/api/surveyAnswer'
 
 headers = {'Content-Type': 'application/json',
             'Authorization': 'JWT '}
 
 #   get
 def get():
-    url_param = url + ''
+    url_param = url + '?survey_id=1'
     response = requests.get(url_param, headers=headers)
     print(response.text)
     assert response.status_code == 200
@@ -18,16 +18,8 @@ def get():
 
 #   post
 def post():
-    data = {'title': 'qtitle',
-            'description': 'qdescription',
-            'target_gender': 'M',
-            'target_age_start': 2,
-            'target_age_end': 5,
-            'question' : [
-                {'index': 1, 'content': '이것은 객관식질문1', 'type': 1, 'choices': '1.사과;2.배;3.감'},
-                {'index': 2, 'content': '이것은 주관식질문', 'type': 2, 'choices': ''},
-                {'index': 3, 'content': '이것은 객관식질문2', 'type': 1, 'choices': '1.사과2;2.배2;3.감2'}
-            ]
+    data = {'survey_question_id': 4,
+            'content': 'String'
     }
     response = requests.post(url, json=data, headers=headers)
     print(response.text)
@@ -36,7 +28,13 @@ def post():
 
 #   put
 def put():
-    data = {'survey_id': 7}
+    data = {'groupBoard_id': '5',
+            'description': '해야할일321',
+            'due_date': '2020-12-12T12:00:00',
+            'person_in_charge' : [
+                {'person': 'aweek43'}
+            ]
+    }
     response = requests.put(url, json=data, headers=headers)
     # print(response.text)
     assert response.status_code == 201

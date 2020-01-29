@@ -28,7 +28,7 @@ class groupView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
         groups = self.get_groups(uid)
-        serializer = groupViewSerializer(groups, many=True)
+        serializer = GroupViewSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -49,7 +49,7 @@ class groupView(APIView):
 class groupMemberView(APIView):
     def get(self, request, format=None):
         member = GroupMember.objects.filter(group=request.GET.get('group_id'))
-        serializer = groupMemberViewSerializer(member, many=True)
+        serializer = GroupMemberViewSerializer(member, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -88,14 +88,14 @@ class groupMemberView(APIView):
 class latestGroupNoticeView(APIView):
     def get(self, request, format=None):
         notice = GroupNotice.objects.filter(group=request.GET.get('group_id')).order_by('-generated_date')[:1]
-        serializer = groupNoticeViewSerializer(notice, many=True)
+        serializer = GroupNoticeViewSerializer(notice, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class groupNoticeView(APIView):
     def get(self, request, format=None):
         notice = GroupNotice.objects.filter(group=request.GET.get('group_id')).order_by('-generated_date')
-        serializer = groupNoticeViewSerializer(notice, many=True)
+        serializer = GroupNoticeViewSerializer(notice, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -128,7 +128,7 @@ class groupNoticeView(APIView):
 class groupScheduleView(APIView):
     def get(self, request, format=None):
         schedule = GroupSchedule.objects.filter(group=Group.objects.get(pk=request.GET.get('group_id')))
-        serializer = groupScheduleViewSerializer(schedule, many=True)
+        serializer = GroupScheduleViewSerializer(schedule, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -170,10 +170,8 @@ class groupBoardView(APIView):
         new_group_board.author = User.objects.get(pk=uid)
         new_group_board.save()
 
-        p_list = data['person_in_charge']
-        for p in p_list:
-            new_group_board.person_in_charge.add(User.objects.get(uid=p))
-
+        for person in data['person_in_charge']:
+            new_group_board.person_in_charge.add(User.objects.get(uid=person['person']))
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
@@ -186,10 +184,8 @@ class groupBoardView(APIView):
         groupboard.save()
 
         groupboard.person_in_charge.clear()
-        p_list = data['person_in_charge']
-        for p in p_list:
-            groupboard.person_in_charge.add(User.objects.get(uid=p))
-
+        for person in data['person_in_charge']:
+            groupboard.person_in_charge.add(User.objects.get(uid=person['person']))
         return Response(status=status.HTTP_201_CREATED)
 
     def delete(self, request, format=None):
@@ -201,7 +197,7 @@ class groupBoardView(APIView):
 class timeTableView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
-        serializer = TimeTableSerializer(TimeTable.objects.filter(owner=uid), many=True)
+        serializer = TimeTableSerializer(TimeTable.objects.filter(owner=User.objects.get(pk=uid)), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -209,7 +205,7 @@ class timeTableView(APIView):
         data = json.loads(request.body.decode('utf-8'))
         new_timetable = TimeTable(owner=User.objects.get(pk=uid), title=data['title'], location=data['location'],
                                   start_time=data['start_time'], end_time=data['end_time'], day=data['day'])
-        new_timetable.save();
+        new_timetable.save()
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
@@ -233,7 +229,7 @@ class personalScheduleView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
         schedule = PersonalSchedule.objects.filter(owner=User.objects.get(pk=uid))
-        serializer = personalScheduleViewSerializer(schedule, many=True)
+        serializer = PersonalScheduleViewSerializer(schedule, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -258,6 +254,7 @@ class personalScheduleView(APIView):
         schedule.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class surveyView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
@@ -265,7 +262,7 @@ class surveyView(APIView):
         user_age_range = int(user.age) // 10
         survey = Survey.objects.filter(target_gender=user.gender, is_active=True,
                                         target_age_start__lte=user_age_range, target_age_end__gte=user_age_range).order_by('-edited_date')
-        serializer = surveyViewSerializer(survey, many=True)
+        serializer = SurveyViewSerializer(survey, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -299,7 +296,7 @@ class mainSurveyView(APIView):
         user_age_range = int(user.age) // 10
         survey = Survey.objects.filter(target_gender=user.gender, is_active=True,
                                         target_age_start__lte=user_age_range, target_age_end__gte=user_age_range).order_by('-edited_date')[:8]
-        serializer = surveyViewSerializer(survey, many=True)
+        serializer = SurveyViewSerializer(survey, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -333,7 +330,14 @@ class surveyAnswerView(APIView):
         survey = Survey.objects.get(pk=request.GET.get('survey_id'))
         if str(uid) != str(survey.author):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        surveyQuestion = SurveyQuestion.objects.filter(survey=survey)
-        surveyAnswer = SurveyAnswer.objects.filter(survey=Survey.objects.get(pk=request.GET.get('survey_id')))
-        serializer = surveyAnswerViewSerializer(surveyAnswer, many=True)
+        surveyAnswer = SurveyAnswer.objects.filter(survey_question__id__in=SurveyQuestion.objects.filter(survey=survey).values_list('id'))
+        serializer = SurveyAnswerViewSerializer(surveyAnswer, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        new_surveyAnswer = SurveyAnswer(survey_question=SurveyQuestion.objects.get(pk=data['survey_question_id']), author=User.objects.get(pk=uid),
+                                        content=data['content'])
+        new_surveyAnswer.save()
+        return Response(status=status.HTTP_201_CREATED)

@@ -1,9 +1,5 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from django.conf import settings
-from django.shortcuts import render, redirect
-import requests
-import json
+from rest_framework import viewsets
+from django.shortcuts import render
 
 from .models import *
 from .serializers import *

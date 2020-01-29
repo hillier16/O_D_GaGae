@@ -43,4 +43,6 @@ urlpatterns = [
     path('api/mainSurvey', apis.mainSurveyView.as_view()),
     path('api/mySurvey', apis.mySurveyView.as_view()),
     path('api/updateSurvey', apis.updateSurveyView.as_view()),
+    path('api/surveyQuestion', apis.surveyQuestionView.as_view()),
+    path('api/surveyAnswer', apis.surveyAnswerView.as_view()),
 ]
