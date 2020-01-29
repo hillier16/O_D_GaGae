@@ -3,15 +3,16 @@ import requests
 
 # Create your tests here.
 
-url = 'http://localhost:8000/api/surveyAnswer'
+url = 'http://localhost:8000/api/groupTimeTableView'
 
 headers = {'Content-Type': 'application/json',
             'Authorization': 'JWT '}
 
 #   get
 def get():
-    url_param = url + '?survey_id=1'
-    response = requests.get(url_param, headers=headers)
+    url_param = url + ''
+    data = {'member': ['1', '2', '3']}
+    response = requests.get(url_param, json=data, headers=headers)
     print(response.text)
     assert response.status_code == 200
 
@@ -47,4 +48,4 @@ def delete():
     # print(response.text)
     assert response.status_code == 204
 
-post()
+get()
