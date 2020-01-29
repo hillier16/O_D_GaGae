@@ -41,7 +41,7 @@ class User(AbstractBaseUser):
     name = models.CharField(max_length=20, null=False,)
     gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
     age = models.IntegerField(default=0, blank=True)
-    survey_coin = models.IntegerField(default=0)
+    survey_coin = models.IntegerField(default=100)
     is_active = models.BooleanField(default=True)   # True: 로그인, False: 로그아웃
     is_admin = models.BooleanField(default=False)   # True: 관리자, False: 사용자
     joined_date = models.DateTimeField(default=timezone.now)
@@ -99,7 +99,6 @@ class Alarm(models.Model):
 
 
 class Group(models.Model):
-    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
     generated_date = models.DateTimeField(default=timezone.now)
