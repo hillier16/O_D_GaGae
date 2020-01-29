@@ -3,14 +3,14 @@ import requests
 
 # Create your tests here.
 
-url = 'http://localhost:8000/api/surveyAnswer'
+url = 'http://localhost:8000/api/groupBoardCharged'
 
 headers = {'Content-Type': 'application/json',
             'Authorization': 'JWT '}
 
 #   get
 def get():
-    url_param = url + '?survey_id=1'
+    url_param = url + ''
     response = requests.get(url_param, headers=headers)
     print(response.text)
     assert response.status_code == 200
@@ -47,4 +47,4 @@ def delete():
     # print(response.text)
     assert response.status_code == 204
 
-post()
+get()

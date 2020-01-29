@@ -161,3 +161,10 @@ class SurveyAnswerViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyAnswer
         fields = ('id', 'survey_question', 'content', 'author')
+
+
+# groupBoardChargedView
+class groupBoardChargedViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GroupBoard
+        fields = ('id', 'group', 'description', 'due_date')
