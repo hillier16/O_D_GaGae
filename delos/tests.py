@@ -3,7 +3,9 @@ import requests
 
 # Create your tests here.
 
+
 url = 'http://localhost:8000/api/groupBoardCharged'
+
 
 headers = {'Content-Type': 'application/json',
             'Authorization': 'JWT '}
@@ -11,7 +13,8 @@ headers = {'Content-Type': 'application/json',
 #   get
 def get():
     url_param = url + ''
-    response = requests.get(url_param, headers=headers)
+    data = {'member': ['1', '2', '3']}
+    response = requests.get(url_param, json=data, headers=headers)
     print(response.text)
     assert response.status_code == 200
 

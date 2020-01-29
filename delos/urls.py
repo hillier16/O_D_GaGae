@@ -46,4 +46,5 @@ urlpatterns = [
     path('api/surveyQuestion', apis.surveyQuestionView.as_view()),
     path('api/surveyAnswer', apis.surveyAnswerView.as_view()),
     path('api/groupBoardCharged', apis.groupBoardChargedView.as_view()),
+    path('api/groupTimeTableView', apis.groupTimeTableView.as_view())
 ]

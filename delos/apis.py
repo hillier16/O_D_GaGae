@@ -171,7 +171,7 @@ class groupBoardView(APIView):
         new_group_board.save()
 
         for person in data['person_in_charge']:
-            new_group_board.person_in_charge.add(User.objects.get(uid=person['person']))
+            new_group_board.person_in_charge.add(User.objects.get(uid=person))
         return Response(status=status.HTTP_201_CREATED)
 
     def put(self, request, format=None):
@@ -185,7 +185,7 @@ class groupBoardView(APIView):
 
         groupboard.person_in_charge.clear()
         for person in data['person_in_charge']:
-            groupboard.person_in_charge.add(User.objects.get(uid=person['person']))
+            groupboard.person_in_charge.add(User.objects.get(uid=person))
         return Response(status=status.HTTP_201_CREATED)
 
     def delete(self, request, format=None):
@@ -260,8 +260,8 @@ class surveyView(APIView):
         uid = get_uid_from_jwt(request)
         user = User.objects.get(pk=uid)
         user_age_range = int(user.age) // 10
-        survey = Survey.objects.filter(target_gender=user.gender, is_active=True,
-                                        target_age_start__lte=user_age_range, target_age_end__gte=user_age_range).order_by('-edited_date')
+        survey = Survey.objects.filter(target_gender=user.gender, is_active=True, target_age_start__lte=user_age_range,
+                                       target_age_end__gte=user_age_range).order_by('-edited_date')
         serializer = SurveyViewSerializer(survey, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -274,10 +274,13 @@ class surveyView(APIView):
         user.survey_coin -= 50
         user.save()
         new_survey = Survey(title=data['title'], author=user, description=data['description'],
-                            target_gender=data['target_gender'], target_age_start=data['target_age_start'], target_age_end=data['target_age_end'])
+                            target_gender=data['target_gender'], target_age_start=data['target_age_start'],
+                            target_age_end=data['target_age_end'])
         new_survey.save()
         for question in data['question']:
-            new_survey_question = SurveyQuestion(survey=new_survey, index=question['index'], content=question['content'], question_type=question['type'], choices=question['choices'])
+            new_survey_question = SurveyQuestion(survey=new_survey, index=question['index'],
+                                                 content=question['content'], question_type=question['type'],
+                                                 choices=question['choices'])
             new_survey_question.save()
         return Response(status=status.HTTP_201_CREATED)
 
@@ -294,8 +297,8 @@ class mainSurveyView(APIView):
         uid = get_uid_from_jwt(request)
         user = User.objects.get(pk=uid)
         user_age_range = int(user.age) // 10
-        survey = Survey.objects.filter(target_gender=user.gender, is_active=True,
-                                        target_age_start__lte=user_age_range, target_age_end__gte=user_age_range).order_by('-edited_date')[:8]
+        survey = Survey.objects.filter(target_gender=user.gender, is_active=True, target_age_start__lte=user_age_range,
+                                       target_age_end__gte=user_age_range).order_by('-edited_date')[:8]
         serializer = SurveyViewSerializer(survey, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -330,16 +333,17 @@ class surveyAnswerView(APIView):
         survey = Survey.objects.get(pk=request.GET.get('survey_id'))
         if str(uid) != str(survey.author):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        surveyAnswer = SurveyAnswer.objects.filter(survey_question__id__in=SurveyQuestion.objects.filter(survey=survey).values_list('id'))
-        serializer = SurveyAnswerViewSerializer(surveyAnswer, many=True)
+        survey_answer = SurveyAnswer.objects.filter(
+            survey_question__id__in=SurveyQuestion.objects.filter(survey=survey).values_list('id'))
+        serializer = SurveyAnswerViewSerializer(survey_answer, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
         uid = get_uid_from_jwt(request)
         data = json.loads(request.body.decode('utf-8'))
-        new_surveyAnswer = SurveyAnswer(survey_question=SurveyQuestion.objects.get(pk=data['survey_question_id']), author=User.objects.get(pk=uid),
-                                        content=data['content'])
-        new_surveyAnswer.save()
+        new_survey_answer = SurveyAnswer(survey_question=SurveyQuestion.objects.get(
+            pk=data['survey_question_id']), author=User.objects.get(pk=uid), content=data['content'])
+        new_survey_answer.save()
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -349,3 +353,33 @@ class groupBoardChargedView(APIView):
         group_board_charged = User.objects.get(pk=uid).User_for_person_in_charge.all()
         serializer = groupBoardChargedViewSerializer(group_board_charged, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+        
+
+class groupTimeTableView(APIView):
+    def get(self, request, format=None):
+        data = json.loads(request.body.decode('utf-8'))
+        result_json = []
+
+        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="일").values(
+            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
+        filter_available_team_timetable(timetable_list, "일", result_json)
+        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="월").values(
+            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
+        filter_available_team_timetable(timetable_list, "월", result_json)
+        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="화").values(
+            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
+        filter_available_team_timetable(timetable_list, "화", result_json)
+        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="수").values(
+            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
+        filter_available_team_timetable(timetable_list, "수", result_json)
+        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="목").values(
+            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
+        filter_available_team_timetable(timetable_list, "목", result_json)
+        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="금").values(
+            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
+        filter_available_team_timetable(timetable_list, "금", result_json)
+        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="토").values(
+            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
+        filter_available_team_timetable(timetable_list, "토", result_json)
+
+        return Response(result_json, status=status.HTTP_200_OK)
