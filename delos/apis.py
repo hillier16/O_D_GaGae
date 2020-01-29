@@ -10,6 +10,7 @@ from .models import *
 from .serializers import *
 from .utils import *
 
+
 class groupView(APIView):
     def get_groups(self, uid):
         try:
@@ -63,8 +64,9 @@ class groupMemberView(APIView):
     def put(self, request, format=None):
         uid = get_uid_from_jwt(request)
         data = json.loads(request.body.decode('utf-8'))
-        group_member = GroupMember.objects.get(group=Group.objects.get(pk=data['group_id']), member=User.objects.get(pk=uid))
-        if group_member.is_alarm_on == True:
+        group_member = GroupMember.objects.get(group=Group.objects.get(pk=data['group_id']),
+                                               member=User.objects.get(pk=uid))
+        if group_member.is_alarm_on:
             group_member.is_alarm_on = False
         else:
             group_member.is_alarm_on = True
@@ -99,7 +101,8 @@ class groupNoticeView(APIView):
     def post(self, request, format=None):
         uid = get_uid_from_jwt(request)
         data = json.loads(request.body.decode('utf-8'))
-        new_notice = GroupNotice(group=Group.objects.get(pk=data['group_id']), description=data['description'], author=User.objects.get(pk=uid))
+        new_notice = GroupNotice(group=Group.objects.get(pk=data['group_id']), description=data['description'],
+                                 author=User.objects.get(pk=uid))
         new_notice.save()
         return Response(status=status.HTTP_201_CREATED)
 
@@ -131,7 +134,9 @@ class groupScheduleView(APIView):
     def post(self, request, format=None):
         uid = get_uid_from_jwt(request)
         data = json.loads(request.body.decode('utf-8'))
-        new_schedule = GroupSchedule(group=Group.objects.get(pk=data['group_id']), start_time=data['start_time'], end_time=data['end_time'], description=data['description'], author=User.objects.get(pk=uid))
+        new_schedule = GroupSchedule(group=Group.objects.get(pk=data['group_id']), start_time=data['start_time'],
+                                     end_time=data['end_time'], description=data['description'],
+                                     author=User.objects.get(pk=uid))
         new_schedule.save()
         return Response(status=status.HTTP_201_CREATED)
 
@@ -152,6 +157,78 @@ class groupScheduleView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class groupBoardView(APIView):
+    def get(self, request, format=None):
+        serializer = GroupBoardViewSerializer(GroupBoard.objects.filter(group=request.GET.get('group_id')), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        new_group_board = GroupBoard(group=Group.objects.get(pk=data['group_id']), description=data['description'],
+                                     due_date=data['due_date'])
+        new_group_board.author = User.objects.get(pk=uid)
+        new_group_board.save()
+
+        p_list = data['person_in_charge']
+        for p in p_list:
+            new_group_board.person_in_charge.add(User.objects.get(uid=p))
+
+        return Response(status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        groupboard = GroupBoard.objects.get(pk=data['groupBoard_id'])
+        groupboard.description = data['description']
+        groupboard.due_date = data['due_date']
+        groupboard.author = User.objects.get(pk=uid)
+        groupboard.save()
+
+        groupboard.person_in_charge.clear()
+        p_list = data['person_in_charge']
+        for p in p_list:
+            groupboard.person_in_charge.add(User.objects.get(uid=p))
+
+        return Response(status=status.HTTP_201_CREATED)
+
+    def delete(self, request, format=None):
+        groupboard = GroupBoard.objects.get(pk=request.GET.get('groupBoard_id'))
+        groupboard.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class timeTableView(APIView):
+    def get(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        serializer = TimeTableSerializer(TimeTable.objects.filter(owner=uid), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        data = json.loads(request.body.decode('utf-8'))
+        new_timetable = TimeTable(owner=User.objects.get(pk=uid), title=data['title'], location=data['location'],
+                                  start_time=data['start_time'], end_time=data['end_time'], day=data['day'])
+        new_timetable.save();
+        return Response(status=status.HTTP_201_CREATED)
+
+    def put(self, request, format=None):
+        data = json.loads(request.body.decode('utf-8'))
+        timetable = TimeTable.objects.get(pk=data['timeTable_id'])
+        timetable.title = data['title']
+        timetable.location = data['location']
+        timetable.day = data['day']
+        timetable.start_time = data['start_time']
+        timetable.end_time = data['end_time']
+        timetable.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+    def delete(self, request, format=None):
+        timetable = TimeTable.objects.get(pk=request.GET.get('timeTable_id'))
+        timetable.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class personalScheduleView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
@@ -162,7 +239,8 @@ class personalScheduleView(APIView):
     def post(self, request, format=None):
         uid = get_uid_from_jwt(request)
         data = json.loads(request.body.decode('utf-8'))
-        new_schedule = PersonalSchedule(owner=User.objects.get(pk=uid), start_time=data['start_time'], end_time=data['end_time'], description=data['description'])
+        new_schedule = PersonalSchedule(owner=User.objects.get(pk=uid), start_time=data['start_time'],
+                                        end_time=data['end_time'], description=data['description'])
         new_schedule.save()
         return Response(status=status.HTTP_201_CREATED)
 
@@ -179,7 +257,6 @@ class personalScheduleView(APIView):
         schedule = PersonalSchedule.objects.get(pk=request.GET.get('personalSchedule_id'))
         schedule.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class surveyView(APIView):
     def get(self, request, format=None):

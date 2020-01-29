@@ -6,7 +6,6 @@ from django.db import models
 from django.utils import timezone
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from django.contrib.auth.hashers import make_password, is_password_usable
 
 GENDER_CHOICES = (
         ('M', '남자'),
@@ -77,24 +76,16 @@ class PersonalSchedule(models.Model):
 
 
 class TimeTable(models.Model):
-    DAY_CHOICES = (
-        ('1', '월요일'),
-        ('2', '화요일'),
-        ('3', '수요일'),
-        ('4', '목요일'),
-        ('5', '금요일'),
-        ('6', '토요일'),
-        ('7', '일요일'),
-    )
     owner = models.ForeignKey('User', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     location = models.CharField(max_length=20)
-    day = models.CharField(max_length=1, default='0', choices=DAY_CHOICES)
+    day = models.CharField(max_length=20)
     start_time = models.TimeField(default=timezone.now)
     end_time = models.TimeField(default=timezone.now)
 
     def __str__(self):
         return str(self.pk)
+
 
 
 class Alarm(models.Model):
@@ -159,6 +150,7 @@ class GroupBoard(models.Model):
 
     def __str__(self):
         return str(self.pk)
+
 
 
 class Survey(models.Model):
