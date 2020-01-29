@@ -5,7 +5,7 @@ from rest_framework import serializers
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('uid', 'name', 'gender', 'age', 'survey_coin', 'joined_date')
+        fields = '__all__'
 
 
 class PersonalScheduleSerializer(serializers.ModelSerializer):
@@ -129,3 +129,15 @@ class surveyViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Survey
         fields = ('id', 'title', 'description')
+
+
+# surveyAnswerView
+class surveyQuestionViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SurveyAnswer
+        fields = ('index', 'content', 'question_type')
+class surveyAnswerViewSerializer(serializers.ModelSerializer):
+    survey_question = surveyQuestionViewSerializer()
+    class Meta:
+        model = SurveyAnswer
+        fields = ('id', 'survey_question', 'content')

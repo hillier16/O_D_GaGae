@@ -194,7 +194,12 @@ class surveyView(APIView):
     def post(self, request, format=None):
         uid = get_uid_from_jwt(request)
         data = json.loads(request.body.decode('utf-8'))
-        new_survey = Survey(title=data['title'], author=User.objects.get(pk=uid), description=data['description'],
+        user = User.objects.get(pk=uid)
+        if user.survey_coin < 50:
+            Response(status=status.HTTP_403_FORBIDDEN)
+        user.survey_coin -= 50
+        user.save()
+        new_survey = Survey(title=data['title'], author=user, description=data['description'],
                             target_gender=data['target_gender'], target_age_start=data['target_age_start'], target_age_end=data['target_age_end'])
         new_survey.save()
         for question in data['question']:
@@ -225,7 +230,7 @@ class mySurveyView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
         survey = Survey.objects.filter(author=User.objects.get(pk=uid)).order_by('-edited_date')
-        serializer = surveyViewSerializer(survey, many=True)
+        serializer = SurveySerializer(survey, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -236,3 +241,22 @@ class updateSurveyView(APIView):
         survey.edited_date = datetime.datetime.now()
         survey.save()
         return Response(status=status.HTTP_201_CREATED)
+
+
+class surveyQuestionView(APIView):
+    def get(self, request, format=None):
+        surveyQuestion = SurveyQuestion.objects.filter(survey=Survey.objects.get(pk=request.GET.get('survey_id')))
+        serializer = SurveyQuestionSerializer(surveyQuestion, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class surveyAnswerView(APIView):
+    def get(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        survey = Survey.objects.get(pk=request.GET.get('survey_id'))
+        if str(uid) != str(survey.author):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        surveyQuestion = SurveyQuestion.objects.filter(survey=survey)
+        surveyAnswer = SurveyAnswer.objects.filter(survey=Survey.objects.get(pk=request.GET.get('survey_id')))
+        serializer = surveyAnswerViewSerializer(surveyAnswer, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
