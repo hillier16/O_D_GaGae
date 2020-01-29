@@ -347,6 +347,14 @@ class surveyAnswerView(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
+class groupBoardChargedView(APIView):
+    def get(self, request, format=None):
+        uid = get_uid_from_jwt(request)
+        group_board_charged = User.objects.get(pk=uid).User_for_person_in_charge.all()
+        serializer = groupBoardChargedViewSerializer(group_board_charged, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+
 class groupTimeTableView(APIView):
     def get(self, request, format=None):
         data = json.loads(request.body.decode('utf-8'))

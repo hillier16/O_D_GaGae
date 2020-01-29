@@ -3,7 +3,9 @@ import requests
 
 # Create your tests here.
 
-url = 'http://localhost:8000/api/groupTimeTableView'
+
+url = 'http://localhost:8000/api/groupBoardCharged'
+
 
 headers = {'Content-Type': 'application/json',
             'Authorization': 'JWT '}
