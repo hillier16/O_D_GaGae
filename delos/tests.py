@@ -8,7 +8,7 @@ url = 'http://localhost:8000/api/loginKakao'
 
 
 headers = {'Content-Type': 'application/json',
-            'Authorization': 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiMTI0NzI1NzgyNyIsInVzZXJuYW1lIjoiMTI0NzI1NzgyNyIsImV4cCI6MTU4MDk5ODAyMywidWlkIjoiMTI0NzI1NzgyNyIsIm9yaWdfaWF0IjoxNTgwMzkzMjIzfQ.TRf92cZ2WfF-oZ9eCb6dskATnELa_UP75bYxSuBVvi0'}
+            'Authorization': 'JWT '}
 
 #   get
 def get():
