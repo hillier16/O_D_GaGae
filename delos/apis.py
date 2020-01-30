@@ -351,7 +351,7 @@ class groupBoardChargedView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
         group_board_charged = User.objects.get(pk=uid).User_for_person_in_charge.all()
-        serializer = groupBoardChargedViewSerializer(group_board_charged, many=True)
+        serializer = GroupBoardChargedViewSerializer(group_board_charged, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
 
@@ -359,27 +359,8 @@ class groupTimeTableView(APIView):
     def get(self, request, format=None):
         data = json.loads(request.body.decode('utf-8'))
         result_json = []
-
-        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="일").values(
-            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
-        filter_available_team_timetable(timetable_list, "일", result_json)
-        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="월").values(
-            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
-        filter_available_team_timetable(timetable_list, "월", result_json)
-        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="화").values(
-            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
-        filter_available_team_timetable(timetable_list, "화", result_json)
-        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="수").values(
-            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
-        filter_available_team_timetable(timetable_list, "수", result_json)
-        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="목").values(
-            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
-        filter_available_team_timetable(timetable_list, "목", result_json)
-        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="금").values(
-            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
-        filter_available_team_timetable(timetable_list, "금", result_json)
-        timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains="토").values(
-            'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
-        filter_available_team_timetable(timetable_list, "토", result_json)
-
+        for day in ('일','월','화','수','목','금','토'):
+            timetable_list = TimeTable.objects.filter(owner__in=data['member'], day__contains=day).values(
+                'day', 'start_time', 'end_time').order_by('start_time', 'end_time')
+            filter_available_team_timetable(timetable_list, day, result_json)
         return Response(result_json, status=status.HTTP_200_OK)
