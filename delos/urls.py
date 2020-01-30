@@ -14,7 +14,7 @@ urlpatterns = [
     path('api/token/verify/', verify_jwt_token),
     path('api/token/refresh/', refresh_jwt_token),
 
-    path('api/loginKakao', accounts.loginKAkaoView.as_view()),
+    path('api/loginKakao', accounts.loginKakaoView.as_view()),
     path('api/group', views.groupView.as_view()),
     path('api/groupMember', views.groupMemberView.as_view()),
     path('api/latestGroupNotice', views.latestGroupNoticeView.as_view()),
