@@ -89,6 +89,7 @@ class GroupDetailSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'code', 'member_num')
 
 
+# groupView
 class GroupViewSerializer(serializers.ModelSerializer):
     group = GroupDetailSerializer()
 
@@ -161,12 +162,14 @@ class UserSurveySerializer(serializers.ModelSerializer):
         fields = ('gender', 'age')
 
 
+# surveyAnswerView
 class SurveyQuestionViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = SurveyQuestion
         fields = ('id', 'index', 'content', 'question_type')
 
 
+# surveyAnswerView
 class SurveyAnswerViewSerializer(serializers.ModelSerializer):
     survey_question = SurveyQuestionViewSerializer()
     author = UserSurveySerializer()
@@ -177,7 +180,7 @@ class SurveyAnswerViewSerializer(serializers.ModelSerializer):
 
 
 # groupBoardChargedView
-class groupBoardChargedViewSerializer(serializers.ModelSerializer):
+class GroupBoardChargedViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupBoard
         fields = ('id', 'group', 'description', 'due_date')
