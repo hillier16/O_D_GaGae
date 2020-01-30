@@ -1,16 +1,19 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_jwt.settings import api_settings
 from calendar import timegm
 from datetime import datetime
-from django.http import HttpResponse, JsonResponse
 import requests
-from rest_framework_jwt.settings import api_settings
-from django.contrib.auth.hashers import make_password
-from .models import *
-from .serializers import *
-from rest_framework.decorators import api_view, permission_classes, authentication_classes, renderer_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework.renderers import JSONRenderer
+
+from .serializers import UserSerializer
+from . models import User
+
 
 
 headers = {}
@@ -140,3 +143,37 @@ def obtain_jwt_token(user: User):
             datetime.utcnow().utctimetuple()
         )
     return jwt_encode_handler(payload)
+
+
+class loginKAkaoView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, format=None):
+        access_token = request.META.get('HTTP_KAKAO_ACCESS_TOKEN')
+
+        url = "https://kapi.kakao.com/v1/user/signup"
+        headers.update({'Authorization': "Bearer " + str(access_token)})
+        response = requests.request("POST", url, headers=headers)
+        print(response.text)
+
+        url = "https://kapi.kakao.com/v2/user/me"
+        params = 'property_keys=["properties.nickname"]'
+        response = requests.request("POST", url, headers=headers, data=params)
+        print(response.text)
+
+        json_data = response.json()
+        user, flag = User.objects.get_or_create(uid=json_data['id'])
+
+        properties = json_data['properties']
+        if flag:
+            user.name = properties['nickname'],
+            user.password = make_password(settings.SECRET_PASSWORD)
+            user.save()
+
+        token = obtain_jwt_token(user)
+        userserial = UserSerializer(user)
+        response = Response(userserial.data, status=status.HTTP_201_CREATED)
+        response['authorization'] = "JWT " + token
+        response['Content-Type'] = 'application/json'
+        print("JWT = " + token)
+        return response

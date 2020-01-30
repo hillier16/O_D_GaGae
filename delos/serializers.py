@@ -2,12 +2,6 @@ from delos.models import *
 from rest_framework import serializers
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'
-
-
 class PersonalScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalSchedule
@@ -74,6 +68,13 @@ class SurveyAnswerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 ###########################################################################
+
+
+# loginKakaoView
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('uid', 'name', 'gender', 'age', 'survey_coin', 'joined_date')
 
 
 class UserNameSerializer(serializers.ModelSerializer):
