@@ -145,7 +145,7 @@ def obtain_jwt_token(user: User):
     return jwt_encode_handler(payload)
 
 
-class loginKAkaoView(APIView):
+class loginKakaoView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request, format=None):

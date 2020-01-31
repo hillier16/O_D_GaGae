@@ -152,7 +152,6 @@ class GroupBoard(models.Model):
         return str(self.pk)
 
 
-
 class Survey(models.Model):
     AGE_CHOICES = (
         (1, '10대'),
@@ -167,7 +166,7 @@ class Survey(models.Model):
     target_age_end = models.IntegerField(default=5, choices=AGE_CHOICES)
     author = models.ForeignKey('User', on_delete=models.CASCADE)
     target_gender = models.CharField(max_length=1, blank=True, choices=GENDER_CHOICES)
-    used_coin = models.IntegerField(default=0)
+    used_coin = models.IntegerField(default=50)
     edited_date = models.DateTimeField(default=timezone.now)
     generated_date = models.DateTimeField(default=timezone.now)
     answer_num = models.IntegerField(default=0)

@@ -17,13 +17,6 @@ def home(request):
 
 
 class groupView(APIView):
-    def get_groups(self, uid):
-        try:
-            group = GroupMember.objects.filter(member=uid)
-            return group
-        except GroupMember.DoesNotExist:
-            raise Http404
-
     def is_code_duplicate(self, code):
         exist = Group.objects.filter(code=code)
         if exist.count() == 0:
@@ -32,7 +25,7 @@ class groupView(APIView):
 
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
-        groups = self.get_groups(uid)
+        groups = GroupMember.objects.filter(member=uid)
         serializer = GroupViewSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -132,7 +125,7 @@ class groupNoticeView(APIView):
 
 class groupScheduleView(APIView):
     def get(self, request, format=None):
-        schedule = GroupSchedule.objects.filter(group=Group.objects.get(pk=request.GET.get('group_id')))
+        schedule = GroupSchedule.objects.filter(group=request.GET.get('group_id'))
         serializer = GroupScheduleViewSerializer(schedule, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -202,7 +195,7 @@ class groupBoardView(APIView):
 class timeTableView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
-        serializer = TimeTableSerializer(TimeTable.objects.filter(owner=User.objects.get(pk=uid)), many=True)
+        serializer = TimeTableSerializer(TimeTable.objects.filter(owner=uid), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -233,7 +226,7 @@ class timeTableView(APIView):
 class personalScheduleView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
-        schedule = PersonalSchedule.objects.filter(owner=User.objects.get(pk=uid))
+        schedule = PersonalSchedule.objects.filter(owner=uid)
         serializer = PersonalScheduleViewSerializer(schedule, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -311,23 +304,30 @@ class mainSurveyView(APIView):
 class mySurveyView(APIView):
     def get(self, request, format=None):
         uid = get_uid_from_jwt(request)
-        survey = Survey.objects.filter(author=User.objects.get(pk=uid)).order_by('-edited_date')
+        survey = Survey.objects.filter(author=uid).order_by('-edited_date')
         serializer = SurveySerializer(survey, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class updateSurveyView(APIView):
     def put(self, request, format=None):
+        uid = get_uid_from_jwt(request)
         data = json.loads(request.body.decode('utf-8'))
+        user = User.objects.get(pk=uid)
+        if user.survey_coin < 20:
+            Response(status=status.HTTP_403_FORBIDDEN)
+        user.survey_coin -= 20
+        user.save()
         survey = Survey.objects.get(pk=data['survey_id'])
         survey.edited_date = datetime.datetime.now()
+        survey.used_coin += 20
         survey.save()
         return Response(status=status.HTTP_201_CREATED)
 
 
 class surveyQuestionView(APIView):
     def get(self, request, format=None):
-        surveyQuestion = SurveyQuestion.objects.filter(survey=Survey.objects.get(pk=request.GET.get('survey_id')))
+        surveyQuestion = SurveyQuestion.objects.filter(survey=request.GET.get('survey_id'))
         serializer = SurveyQuestionSerializer(surveyQuestion, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -345,9 +345,12 @@ class surveyAnswerView(APIView):
 
     def post(self, request, format=None):
         uid = get_uid_from_jwt(request)
+        user = User.objects.get(pk=uid)
+        user.survey_coin += 10
+        user.save()
         data = json.loads(request.body.decode('utf-8'))
-        new_survey_answer = SurveyAnswer(survey_question=SurveyQuestion.objects.get(
-            pk=data['survey_question_id']), author=User.objects.get(pk=uid), content=data['content'])
+        new_survey_answer = SurveyAnswer(survey_question=SurveyQuestion.objects.get(pk=data['survey_question_id']),
+                                        author=user, content=data['content'])
         new_survey_answer.save()
         return Response(status=status.HTTP_201_CREATED)
 
