@@ -40,6 +40,4 @@ def delete():
     # print(response.text)
     assert response.status_code == 204
 
-
-
 post()
